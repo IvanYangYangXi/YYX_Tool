@@ -9,6 +9,15 @@ import re
 import string
 from datetime import datetime
 
+"""
+工具名：文件改名工具
+作者: IvanYYX
+邮箱: 523166477@qq.com
+时间: 2025年08月20日
+使用说明 : python rename_tool.py
+    使用Python3运行该脚本，即可打开文件改名工具。
+"""
+
 class RenameTool:
     def __init__(self, root):
         self.root = root
