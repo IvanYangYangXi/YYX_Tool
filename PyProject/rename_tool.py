@@ -315,7 +315,7 @@ class RenameTool:
         self.field_table.delete(*self.field_table.get_children())
         sample_fields = [
             (1, "T"),
-            (2, "新字段"),
+            (2, "{*}"),
             (3, "递增数字")
         ]
         for pos, field in sample_fields:
