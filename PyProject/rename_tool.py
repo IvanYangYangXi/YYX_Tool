@@ -18,6 +18,9 @@ from datetime import datetime
     使用Python3运行该脚本，即可打开文件改名工具。
 """
 
+# 使用正则表达式的模式，匹配任何非字母数字字符
+pattern = r'[^a-zA-Z0-9]+'
+
 class RenameTool:
     def __init__(self, root):
         self.root = root
@@ -426,7 +429,7 @@ class RenameTool:
                 old_path = self.file_list.get(i)
                 dirname = os.path.dirname(old_path)
                 old_name, ext = os.path.splitext(os.path.basename(old_path))
-                old_fields = old_name.split("_")
+                old_fields = re.split(pattern, old_name)
                 
                 # 构建新文件名
                 new_fields = []
@@ -475,7 +478,7 @@ class RenameTool:
                 if self.remove_duplicates.get():
                     # 先按'_'连接再分割，确保格式统一
                     temp_name = "_".join(new_fields)
-                    split_fields = temp_name.split("_")
+                    split_fields = re.split(pattern, temp_name)
                     
                     # 去重同时保留顺序
                     seen = set()
