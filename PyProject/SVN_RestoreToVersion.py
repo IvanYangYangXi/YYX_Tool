@@ -533,8 +533,41 @@ class SVNRestoreTool:
                 self.update_status(f"提示: {file_path} 在版本 {version} 中不可直接访问", is_warning=True)
                 return False
             
-            # 使用svn cat命令获取指定版本的文件内容
-            cmd = ['svn', 'cat', '-r', version, file_path]
+            # 使用svn merge命令将文件还原到指定版本
+            # 这种方式可以创建本地修改，便于后续提交
+            current_version = self.get_current_version(file_path)
+            if not current_version:
+                self.update_status(f"无法获取文件 {file_path} 的当前版本", is_error=True)
+                return False
+            
+            # 使用反向合并将文件恢复到指定版本
+            # 从当前版本合并到目标版本
+            cmd = ['svn', 'merge', '-r', f'{current_version}:{version}', file_path]
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                errors='ignore',
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0,
+                cwd=os.path.dirname(file_path)  # 确保在正确的目录中执行命令
+            )
+            
+            if result.returncode == 0:
+                self.update_status(f"成功: {file_path} 已通过合并还原到版本 {version}")
+                return True
+            else:
+                self.update_status(f"合并失败: {file_path} - {result.stderr.strip()}", is_error=True)
+                return False
+                
+        except Exception as e:
+            self.update_status(f"处理文件 {file_path} 时发生异常: {str(e)}", is_error=True)
+            return False
+    
+    def get_current_version(self, file_path):
+        """获取文件的当前版本号"""
+        try:
+            cmd = ['svn', 'info', '--xml', file_path]
             result = subprocess.run(
                 cmd,
                 capture_output=True,
@@ -545,18 +578,38 @@ class SVNRestoreTool:
             )
             
             if result.returncode == 0:
-                # 将指定版本的内容写入文件，这样会成为本地修改
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    f.write(result.stdout)
-                
-                self.update_status(f"成功: {file_path} 已处理到版本 {version}，现在是本地修改")
+                root = ET.fromstring(result.stdout)
+                entry = root.find('.//entry')
+                if entry is not None:
+                    revision = entry.get('revision')
+                    return revision
+            return None
+        except Exception:
+            return None
+    
+    def process_file_update_method(self, file_path, version):
+        """备用处理方法：使用svn update命令"""
+        try:
+            # 使用svn update命令恢复到指定版本
+            cmd = ['svn', 'update', '-r', version, file_path]
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                errors='ignore',
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+            )
+            
+            if result.returncode == 0:
+                self.update_status(f"成功(备用方法): {file_path} 已恢复到版本 {version}")
                 return True
             else:
-                self.update_status(f"失败: {file_path} - {result.stderr.strip()}", is_error=True)
+                self.update_status(f"备用方法也失败: {file_path} - {result.stderr.strip()}", is_error=True)
                 return False
                 
         except Exception as e:
-            self.update_status(f"处理文件 {file_path} 时发生异常: {str(e)}", is_error=True)
+            self.update_status(f"备用方法处理文件 {file_path} 时发生异常: {str(e)}", is_error=True)
             return False
     
     def is_version_in_history(self, file_path, version):
