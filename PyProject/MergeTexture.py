@@ -329,9 +329,9 @@ def merge_texture_channels(leaf_groups):
                 r_channel = get_red_channel(img_r)
                 s_channel = get_red_channel(img_s)
                 
-                # 将_R贴图的R通道复制到_N贴图的B通道（索引1）
+                # 将_R贴图的R通道复制到_N贴图的B通道（索引0）
                 # 将_S贴图的R通道复制到_N贴图的A通道（索引3）
-                img_n[:, :, 1] = r_channel  # B通道
+                img_n[:, :, 0] = r_channel  # B通道
                 img_n[:, :, 3] = s_channel  # A通道
                 
                 # 生成新文件名，将_N改为_NRS
@@ -522,8 +522,8 @@ def merge_texture_channels(leaf_groups):
                 else:
                     r_channel = img_r
                 
-                # 将_R贴图的R通道复制到_N贴图的B通道（索引1）
-                img_n[:, :, 1] = r_channel  # B通道
+                # 将_R贴图的R通道复制到_N贴图的B通道（索引0）
+                img_n[:, :, 0] = r_channel  # B通道
                 
                 # 生成新文件名，将_N改为_NR
                 new_name = re.sub(r'_N$', '_NR', os.path.splitext(n_file)[0])
