@@ -8,5 +8,36 @@ dist/
 build/
 *.spec
 
+# Virtual environments
+venv/
+.env
+.venv
+env/
+ENV/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
 # Log files
 *.log
+debug.log
+
+# Test and debug files
+test_*.py
+debug_*.py
+*.test
+*.debug
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Project specific ignores
+*.png
+*.jpg
+*.jpeg
+test_*.png
