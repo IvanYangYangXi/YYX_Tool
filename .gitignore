@@ -7,6 +7,7 @@ __pycache__/
 dist/
 build/
 *.spec
+*.ps1
 
 # Virtual environments
 venv/
@@ -41,3 +42,6 @@ Thumbs.db
 *.jpg
 *.jpeg
 test_*.png
+
+# 临时文件
+temp/
